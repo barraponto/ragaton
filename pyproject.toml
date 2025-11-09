@@ -7,6 +7,7 @@ requires-python = ">=3.13"
 dependencies = [
     "langchain>=1.0.4",
     "langchain-ollama>=1.0.0",
+    "pydantic-settings>=2.11.0",
     "streamlit>=1.51.0",
     "watchdog>=6.0.0",
 ]
@@ -18,3 +19,8 @@ version_scheme = "pep440"
 version_provider = "uv"
 update_changelog_on_bump = true
 major_version_zero = true
+
+[dependency-groups]
+dev = [
+    "basedpyright>=1.33.0",
+]
