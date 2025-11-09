@@ -1,6 +1,8 @@
 import streamlit as st
 
-from components.news_ui import news_ui
+from components.news_ui import NewsComponent
+
+news: NewsComponent = NewsComponent.setup()
 
 """
 # Welcome to Ragaton, the AI-powered search recollection assistant.
@@ -22,9 +24,6 @@ with st.sidebar:
         disabled=True,
     )
 
-"""
-Let's start by adding some news articles urls to the memory.
-"""
-news_ui()
+news.ui()
 
 st.chat_input("Enter your query here...")
