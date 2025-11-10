@@ -13,7 +13,9 @@ from langchain_community.document_loaders import WebBaseLoader
 from langchain_chroma import Chroma
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from pydantic import HttpUrl
+from requests import HTTPError
 from agent_utils import clean_html_doc
+from database import NewsArticle
 from settings import RagatonSettings
 
 
@@ -52,7 +54,7 @@ class Embedder:
         )
         docs = loader.load()
         splits = splitter.split_documents([clean_html_doc(doc) for doc in docs])
-        self.store.add_documents(splits)
+        self.vectorstore.add_documents(splits)
 
     def retriever(self) -> BaseTool:
         @tool(response_format="content_and_artifact")
@@ -61,7 +63,7 @@ class Embedder:
             Retrieve context from knowledge base.
             ALWAYS use this tool to answer the useruser's questioi.
             """
-            docs = self.store.similarity_search(query)
+            docs = self.vectorstore.similarity_search(query)
             serialized = "\n\n".join(
                 f"Source: {doc.metadata['source']}\nContent: {doc.page_content}"
                 for doc in docs
@@ -77,7 +79,20 @@ class AgentLoader:
         self.embedder: Embedder = Embedder(settings)
 
     def process(self, url: HttpUrl) -> None:
-        self.embedder.add_url(url)
+        article = NewsArticle.select().where(NewsArticle.url == url).first()
+
+        if article and article.status != 200:
+            raise HTTPError(f"HTTP Error {article.status} for URL {url}")
+
+        if not article:
+            try:
+                self.embedder.add_url(url)
+            except HTTPError as e:
+                article = NewsArticle(url=url, status=e.response.status_code)
+            else:
+                article = NewsArticle(url=url)
+
+            article.save()
 
     @property
     def provider(self) -> Provider:

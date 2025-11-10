@@ -8,3 +8,7 @@ class RagatonSettings(BaseSettings):
     chroma_host: str = "localhost"
     chroma_port: int = 8000
     openai_api_key: str | None = None
+    postgres_user: str = "ragaton"
+    postgres_password: str = "ragatonpwd"
+    postgres_host: str = "localhost"
+    postgres_port: int = 5432
