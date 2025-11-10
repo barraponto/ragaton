@@ -1,11 +1,12 @@
 from enum import StrEnum
+import itertools
 from typing import Any
 from langchain.tools import BaseTool, tool
 from langchain.agents import create_agent
 from langchain_core.documents import Document
 from langchain_core.embeddings import Embeddings
 from langchain_core.language_models.chat_models import BaseChatModel
-from langchain_core.messages import HumanMessage
+from langchain_core.messages import AIMessage, HumanMessage, ToolMessage
 from langchain_core.vectorstores import VectorStore
 from langchain_ollama.embeddings import OllamaEmbeddings
 from langchain_ollama.chat_models import ChatOllama
@@ -64,10 +65,7 @@ class Embedder:
             ALWAYS use this tool to answer the useruser's questioi.
             """
             docs = self.vectorstore.similarity_search(query)
-            serialized = "\n\n".join(
-                f"Source: {doc.metadata['source']}\nContent: {doc.page_content}"
-                for doc in docs
-            )
+            serialized = "\n\n".join(f"Context: {doc.page_content}" for doc in docs)
             return serialized, docs
 
         return retrieve_context
@@ -114,7 +112,27 @@ class AgentLoader:
             ),
         )
 
-    def query(self, query: str) -> str:
+    def query(self, query: str) -> tuple[str, set[str]]:
         agent = self.agent()
-        result = agent.invoke({"messages": [HumanMessage(content=query)]})
-        return result["messages"][-1].content
+        result = agent.invoke(
+            {
+                "messages": [
+                    HumanMessage(
+                        content=f"""
+                        Use the retrieve_context tool to answer this:
+                        <query>{query}</query>
+                        """.strip()
+                    )
+                ]
+            }
+        )
+        responses = [m for m in result["messages"] if isinstance(m, AIMessage)]
+        response_text = str(responses[-1].content) if responses else ""
+        context = [m.artifact for m in result["messages"] if isinstance(m, ToolMessage)]
+        sources = {
+            str(source)
+            for doc in itertools.chain.from_iterable(context)
+            if (source := doc.metadata.get("source"))
+        }
+
+        return response_text, sources

@@ -31,5 +31,9 @@ query = st.chat_input("Enter your query here...")
 if query:
     st.chat_message("user").write(query)
     with st.spinner("Thinking..."):
-        answer = agent.query(query)
+        answer, sources = agent.query(query)
         st.chat_message("assistant").write(answer)
+
+        with st.expander("Sources"):
+            for source in sources:
+                st.write(f"- {source}")
