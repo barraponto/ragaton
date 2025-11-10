@@ -1,3 +1,9 @@
+## 2.0.0 (2025-11-10)
+
+### Feat
+
+- **youtube**: add youtube rag support
+
 ## 1.0.0 (2025-11-09)
 
 ### Feat
