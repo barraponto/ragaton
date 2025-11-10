@@ -1,3 +1,10 @@
+## 1.0.0 (2025-11-09)
+
+### Feat
+
+- **news**: display the sources for rag responses
+- **news**: use database to avoid duplicate news in the database
+
 ## 0.3.0 (2025-11-09)
 
 ### Feat
