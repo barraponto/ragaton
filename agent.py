@@ -59,14 +59,13 @@ class Embedder:
         def retrieve_context(query: str) -> tuple[str, list[Document]]:
             """
             Retrieve context from knowledge base.
-            ALWAYS use this tool to answer the user.
+            ALWAYS use this tool to answer the useruser's questioi.
             """
             docs = self.store.similarity_search(query)
             serialized = "\n\n".join(
                 f"Source: {doc.metadata['source']}\nContent: {doc.page_content}"
                 for doc in docs
             )
-            print(serialized)
             return serialized, docs
 
         return retrieve_context
