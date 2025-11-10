@@ -6,8 +6,8 @@ from typing import Any
 from langchain_core.documents import Document
 from yt_dlp import YoutubeDL
 from pydantic import HttpUrl
-import requests
 from settings import RagatonSettings
+from whisper import transcribe_audio
 
 settings = RagatonSettings()
 
@@ -45,15 +45,10 @@ class YoutubeLoader:
 
     def load(self) -> list[Document]:
         with self.download() as path:
-            with path.open("rb") as file:
-                response = requests.post(
-                    settings.whisper_api_url,
-                    data={"response_format": "text"},
-                    files={"file": file},
-                )
+            transcription = transcribe_audio(path)
         return [
             Document(
-                page_content=response.text,
+                page_content=transcription,
                 metadata={"source": str(self.url), "title": self.title},
             )
         ]

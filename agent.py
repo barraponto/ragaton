@@ -1,5 +1,8 @@
+from collections.abc import Generator
 from enum import StrEnum
 import itertools
+from pathlib import Path
+import tempfile
 from typing import Any
 from langchain.tools import BaseTool, tool
 from langchain.agents import create_agent
@@ -14,10 +17,12 @@ from langchain_community.document_loaders import WebBaseLoader
 from langchain_chroma import Chroma
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from pydantic import HttpUrl
+from pydub import AudioSegment
 from requests import HTTPError
 from agent_utils import clean_html_doc
 from database import NewsArticle, YoutubeVideo
 from settings import RagatonSettings
+from whisper import transcribe_audio
 from youtube import YoutubeLoader
 
 
@@ -140,6 +145,16 @@ class AgentLoader:
                 "You should ALWAYS use the retrieve_context tool to answer the user's question."
             ),
         )
+
+    def query_audio(self, audio: AudioSegment) -> Generator[str, None, None]:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            path = Path(tmpdir) / "audio.mp3"
+            _ = audio.export(path, format="mp3")
+            transcription = transcribe_audio(path)
+        yield transcription
+
+        response_text, _ = self.query(transcription)
+        yield response_text
 
     def query(self, query: str) -> tuple[str, set[str]]:
         agent = self.agent()
