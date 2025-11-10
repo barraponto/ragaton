@@ -1,3 +1,11 @@
+## 3.0.0 (2025-11-10)
+
+### Feat
+
+- **app**: give page titles
+- **voice**: add voice replies via elevenlabs
+- **voice**: add voice support for queries
+
 ## 2.0.0 (2025-11-10)
 
 ### Feat
