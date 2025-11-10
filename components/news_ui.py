@@ -12,16 +12,6 @@ class NewsComponent:
     def __init__(self) -> None:
         self.news: NewsURLs = NewsURLs(urls=set())
 
-    @classmethod
-    @st.cache_resource
-    def setup(cls: type[NewsComponent]) -> NewsComponent:
-        component = cls()
-
-        if "news" not in st.session_state:
-            st.session_state["news"] = component.news
-
-        return component
-
     def ui(self) -> None:
         if not self.news.urls:
             """

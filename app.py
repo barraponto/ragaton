@@ -1,8 +1,10 @@
 import streamlit as st
 
-from components.news_ui import NewsComponent
+import st_utils as utils
 
-news: NewsComponent = NewsComponent.setup()
+
+agent = utils.agent_loader()
+news = utils.news_loader()
 
 """
 # Welcome to Ragaton, the AI-powered search recollection assistant.
@@ -24,6 +26,10 @@ with st.sidebar:
         disabled=True,
     )
 
-news.ui()
 
-st.chat_input("Enter your query here...")
+query = st.chat_input("Enter your query here...")
+if query:
+    st.chat_message("user").write(query)
+    with st.spinner("Thinking..."):
+        answer = agent.query(query)
+        st.chat_message("assistant").write(answer)
