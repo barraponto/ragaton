@@ -13,3 +13,4 @@ class RagatonSettings(BaseSettings):
     postgres_host: str = "localhost"
     postgres_port: int = 5432
     whisper_api_url: str = "http://localhost:5000/v1/audio/transcriptions"
+    elevenlabs_api_key: str | None = None

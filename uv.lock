@@ -513,6 +513,23 @@ wheels = [
 ]
 
 [[package]]
+name = "elevenlabs"
+version = "2.22.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "httpx" },
+    { name = "pydantic" },
+    { name = "pydantic-core" },
+    { name = "requests" },
+    { name = "typing-extensions" },
+    { name = "websockets" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/e3/d1/75ef7c84e3fcea662f27b25a98e98fcad8f7c3519a28846b30c601d0b87a/elevenlabs-2.22.0.tar.gz", hash = "sha256:b89cea0cb008ec4a192a4be934992302203cedc8bdba7dc82965a191cbd8a1e7", size = 419526, upload-time = "2025-11-05T12:45:49.017Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/17/7a/74053e1b6e23f13c3bc5ec8d9b6ef5a6fad891c9a91b504d5e038cd05097/elevenlabs-2.22.0-py3-none-any.whl", hash = "sha256:cf3e095c4cf87727e6024a6ca3e1ac0ca4eb06e237f281e6e2570e51dbf638ca", size = 1123618, upload-time = "2025-11-05T12:45:47.339Z" },
+]
+
+[[package]]
 name = "filelock"
 version = "3.20.0"
 source = { registry = "https://pypi.org/simple" }
@@ -1149,6 +1166,7 @@ source = { virtual = "." }
 dependencies = [
     { name = "audioop-lts" },
     { name = "bs4" },
+    { name = "elevenlabs" },
     { name = "html-to-markdown" },
     { name = "langchain" },
     { name = "langchain-chroma" },
@@ -1175,6 +1193,7 @@ dev = [
 requires-dist = [
     { name = "audioop-lts", specifier = ">=0.2.2" },
     { name = "bs4", specifier = ">=0.0.2" },
+    { name = "elevenlabs", specifier = ">=2.22.0" },
     { name = "html-to-markdown", specifier = ">=2.6.5" },
     { name = "langchain", specifier = ">=1.0.4" },
     { name = "langchain-chroma", specifier = ">=1.0.0" },
