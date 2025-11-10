@@ -16,8 +16,9 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 from pydantic import HttpUrl
 from requests import HTTPError
 from agent_utils import clean_html_doc
-from database import NewsArticle
+from database import NewsArticle, YoutubeVideo
 from settings import RagatonSettings
+from youtube import YoutubeLoader
 
 
 class Provider(StrEnum):
@@ -57,6 +58,15 @@ class Embedder:
         splits = splitter.split_documents([clean_html_doc(doc) for doc in docs])
         self.vectorstore.add_documents(splits)
 
+    def add_youtube_url(self, url: HttpUrl) -> None:
+        loader = YoutubeLoader(url)
+        docs = loader.load()
+        splitter = RecursiveCharacterTextSplitter(
+            chunk_size=226, chunk_overlap=18, add_start_index=True
+        )
+        splits = splitter.split_documents(docs)
+        self.vectorstore.add_documents(splits)
+
     def retriever(self) -> BaseTool:
         @tool(response_format="content_and_artifact")
         def retrieve_context(query: str) -> tuple[str, list[Document]]:
@@ -75,6 +85,25 @@ class AgentLoader:
     def __init__(self, settings: RagatonSettings):
         self.settings: RagatonSettings = settings
         self.embedder: Embedder = Embedder(settings)
+
+    def process_youtube_url(self, url: HttpUrl) -> None:
+        if url.host not in ["www.youtube.com", "youtube.com", "youtu.be"]:
+            raise ValueError("Invalid YouTube URL")
+
+        video = YoutubeVideo.select().where(YoutubeVideo.url == url).first()
+
+        if video and video.status != 200:
+            raise HTTPError(f"HTTP Error {video.status} for URL {url}")
+
+        if not video:
+            try:
+                self.embedder.add_youtube_url(url)
+            except HTTPError as e:
+                video = YoutubeVideo(url=url, status=e.response.status_code)
+            else:
+                video = YoutubeVideo(url=url)
+
+            video.save()
 
     def process(self, url: HttpUrl) -> None:
         article = NewsArticle.select().where(NewsArticle.url == url).first()
